@@ -41,7 +41,7 @@ const frontendPath = path.resolve(__dirname, "../../event-portal/dist/public");
 app.use(express.static(frontendPath));
 
 // Catch-all: serve React app for any non-API route (SPA routing)
-app.get("*", (_req, res) => {
+app.get("/{*path}", (_req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 
