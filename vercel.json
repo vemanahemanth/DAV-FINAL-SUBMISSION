@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "name": "chanakya-event-portal",
+  "builds": [
+    {
+      "src": "artifacts/api-server/api/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "artifacts/api-server/src/**",
+          "lib/**",
+          "node_modules/.pnpm/**"
+        ]
+      }
+    },
+    {
+      "src": "artifacts/event-portal/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "buildCommand": "pnpm install --frozen-lockfile && pnpm --filter @workspace/event-portal build:vercel",
+        "outputDirectory": "artifacts/event-portal/dist"
+      }
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/artifacts/api-server/api/index.ts" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "NODE_ENV": "production"
+  }
+}
