@@ -6,7 +6,7 @@ services:
     name: chanakya-api-server
     env: node
     region: singapore # or ohio, frankfurt, oregon
-    buildCommand: pnpm install && pnpm build
+    buildCommand: pnpm install && pnpm --filter @workspace/api-server build
     startCommand: cd artifacts/api-server && pnpm start
     envVars:
       - key: NODE_ENV
