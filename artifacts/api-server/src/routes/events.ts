@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
   try {
     const { search, category } = req.query;
 
-    const query = db.select({
+    let query = db.select({
       eventId: events.eventId,
       eventName: events.eventName,
       festName: events.festName,
@@ -25,21 +25,23 @@ router.get("/", async (req, res) => {
     .from(events)
     .leftJoin(eventCategories, eq(events.categoryId, eventCategories.categoryId))
     .leftJoin(venues, eq(events.venueId, venues.venueId))
-    .where(eq(events.status, 'Approved'));
+    .$dynamic();
+
+    const filters = [eq(events.status, 'Approved')];
 
     if (search) {
-      query.where(and(eq(events.status, 'Approved'), ilike(events.eventName, `%${search}%`)));
+      filters.push(ilike(events.eventName, `%${search}%`));
     }
     
     if (category && category !== "All") {
-      query.where(and(eq(events.status, 'Approved'), eq(eventCategories.categoryName, String(category))));
+      filters.push(eq(eventCategories.categoryName, String(category)));
     }
 
-    const results = await query;
-    res.json(results);
+    const results = await query.where(and(...filters));
+    return res.json(results);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -57,10 +59,10 @@ router.get("/pending", async (req, res) => {
     .where(eq(events.status, 'Pending'))
     .limit(20);
 
-    res.json(pendingEvents);
+    return res.json(pendingEvents);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -87,10 +89,10 @@ router.post("/", async (req, res) => {
       status: 'Pending'
     }).returning();
     
-    res.status(201).json(newEvent);
+    return res.status(201).json(newEvent);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -102,10 +104,10 @@ router.patch("/:id/status", async (req, res) => {
       .set({ status })
       .where(eq(events.eventId, parseInt(id)))
       .returning();
-    res.json(updated);
+    return res.json(updated);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

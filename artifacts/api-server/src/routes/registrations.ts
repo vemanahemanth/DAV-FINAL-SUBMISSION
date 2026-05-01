@@ -22,10 +22,10 @@ router.get("/", async (req, res) => {
     .orderBy(desc(registrations.createdAt))
     .limit(50);
 
-    res.json(results);
+    return res.json(results);
   } catch (error: any) {
     console.error("GET /registrations error:", error);
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
+    return res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 });
 
@@ -62,14 +62,14 @@ router.post("/", async (req, res) => {
       registrationSource: "Web",
     }).returning();
 
-    res.status(201).json(registration);
+    return res.status(201).json(registration);
   } catch (error: any) {
     console.error("POST /registrations error:", error);
     console.error("Request body:", req.body);
     if (error.code === '23505') {
        return res.status(400).json({ error: "Already registered for this event" });
     }
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
+    return res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 });
 
